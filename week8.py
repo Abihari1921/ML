@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
 from collections import Counter
 
 def euclidean_distance(x1, x2):
@@ -46,12 +45,3 @@ if uploaded_file is not None:
             new_data = np.array(new_data)
             prediction = knn(X, y, new_data, k)
             st.write(f"### Prediction for the new data point: {prediction}")
-
-            st.write("### Data Plot")
-            fig, ax = plt.subplots()
-            scatter = ax.scatter(X[:, 0], X[:, 1], c=y, cmap='viridis')
-            ax.scatter(new_data[0], new_data[1], c='red', marker='x', label='New Data Point')
-            ax.set_xlabel(features[0])
-            ax.set_ylabel(features[1])
-            ax.legend()
-            st.pyplot(fig)
