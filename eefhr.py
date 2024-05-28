@@ -1,7 +1,6 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import plotly.express as px
 
 # Load dataset
 def load_iris():
@@ -63,16 +62,16 @@ st.title('Clustering on Iris Dataset')
 st.write('This app demonstrates clustering using KMeans and Gaussian Mixture Model on the Iris dataset.')
 
 # Real Plot
-fig_real = px.scatter(X, x='petal length (cm)', y='petal width (cm)', color=y['Targets'].astype(str),
-                      title='Real', labels={'color': 'Target'})
-st.plotly_chart(fig_real)
+st.write('Real')
+real_data = pd.concat([X, y], axis=1)
+st.dataframe(real_data)
 
 # KMeans Plot
-fig_kmeans = px.scatter(X, x='petal length (cm)', y='petal width (cm)', color=kmeans_labels.astype(str),
-                        title='KMeans Clustering', labels={'color': 'Cluster'})
-st.plotly_chart(fig_kmeans)
+st.write('KMeans Clustering')
+kmeans_data = pd.concat([X, pd.DataFrame(kmeans_labels, columns=['Cluster'])], axis=1)
+st.dataframe(kmeans_data)
 
 # GMM Plot
-fig_gmm = px.scatter(X, x='petal length (cm)', y='petal width (cm)', color=gmm_labels.astype(str),
-                     title='GMM Classification', labels={'color': 'Cluster'})
-st.plotly_chart(fig_gmm)
+st.write('GMM Classification')
+gmm_data = pd.concat([X, pd.DataFrame(gmm_labels, columns=['Cluster'])], axis=1)
+st.dataframe(gmm_data)
