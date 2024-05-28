@@ -1,50 +1,79 @@
 import streamlit as st
-import numpy as np
-from pgmpy.models import BayesianNetwork
-from pgmpy.factors.discrete import TabularCPD
-from pgmpy.inference import VariableElimination
 
-# Define the structure of the Bayesian Network
-model = BayesianNetwork([
-    ('A', 'C'),
-    ('B', 'C')
-])
+class BayesianNetwork:
+    def __init__(self):
+        self.probabilities = {}
 
-# Define the Conditional Probability Distributions (CPDs)
-cpd_A = TabularCPD(variable='A', variable_card=2, values=[[0.8], [0.2]])
-cpd_B = TabularCPD(variable='B', variable_card=2, values=[[0.7], [0.3]])
-cpd_C = TabularCPD(variable='C', variable_card=2, 
-                   values=[[0.9, 0.6, 0.7, 0.1],
-                           [0.1, 0.4, 0.3, 0.9]],
-                   evidence=['A', 'B'],
-                   evidence_card=[2, 2])
+    def add_probability(self, node, probability_table):
+        self.probabilities[node] = probability_table
 
-# Add CPDs to the model
-model.add_cpds(cpd_A, cpd_B, cpd_C)
+    def get_probability(self, node, evidence):
+        table = self.probabilities[node]
+        for condition, prob in table.items():
+            if all(evidence.get(var) == val for var, val in condition.items()):
+                return prob
+        return 0
 
-# Validate the model
-model.check_model()
-
-# Perform inference
-inference = VariableElimination(model)
-
-st.title("Bayesian Network Inference")
-
-st.write("This application performs inference on a simple Bayesian Network.")
-
-# User inputs
-a = st.selectbox('Select value for A', ['True', 'False'])
-b = st.selectbox('Select value for B', ['True', 'False'])
-
-# Map user input to network values
-evidence = {
-    'A': 1 if a == 'True' else 0,
-    'B': 1 if b == 'True' else 0
+# Define the probabilities
+# P(A)
+P_A = {
+    (): 0.2
 }
 
-# Perform inference
-result = inference.query(variables=['C'], evidence=evidence)
+# P(B|A)
+P_B_given_A = {
+    (('A', True),): 0.6,
+    (('A', False),): 0.1
+}
 
-# Display the results
-st.write(f"Probability of C given A={a} and B={b}:")
-st.write(result)
+# P(C|B)
+P_C_given_B = {
+    (('B', True),): 0.7,
+    (('B', False),): 0.2
+}
+
+# Initialize the network
+bn = BayesianNetwork()
+bn.add_probability('A', P_A)
+bn.add_probability('B', P_B_given_A)
+bn.add_probability('C', P_C_given_B)
+
+def calculate_probability(evidence):
+    # Example inference: P(C=True | evidence)
+    A = evidence.get('A', None)
+
+    if A is not None:
+        # P(A=True)
+        P_A_true = bn.get_probability('A', {})
+
+        # P(B=True | A=True) and P(B=False | A=True)
+        P_B_true_given_A_true = bn.get_probability('B', {'A': True})
+        P_B_false_given_A_true = 1 - P_B_true_given_A_true
+
+        # P(C=True | B=True) and P(C=True | B=False)
+        P_C_true_given_B_true = bn.get_probability('C', {'B': True})
+        P_C_true_given_B_false = bn.get_probability('C', {'B': False})
+
+        # Calculate P(C=True | A=True)
+        P_C_true_given_A_true = (P_C_true_given_B_true * P_B_true_given_A_true +
+                                 P_C_true_given_B_false * P_B_false_given_A_true)
+        return P_C_true_given_A_true
+    else:
+        return None
+
+# Streamlit UI
+st.title("Bayesian Network Inference")
+
+st.write("### Set Evidence")
+A_val = st.selectbox("A", [None, True, False], format_func=lambda x: "Select an option" if x is None else str(x))
+
+evidence = {'A': A_val} if A_val is not None else {}
+
+if st.button("Calculate P(C=True | evidence)"):
+    result = calculate_probability(evidence)
+    if result is not None:
+        st.write(f"P(C=True | A={A_val}) = {result:.4f}")
+    else:
+        st.write("Please set evidence for A.")
+
+
