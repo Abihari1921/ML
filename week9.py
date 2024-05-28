@@ -1,6 +1,5 @@
 import streamlit as st
 import numpy as np
-from scipy import linalg
 import matplotlib.pyplot as plt
 
 def lowess(x, y, f, iterations):
@@ -17,7 +16,8 @@ def lowess(x, y, f, iterations):
             b = np.array([np.sum(weights * y), np.sum(weights * y * x)])
             A = np.array([[np.sum(weights), np.sum(weights * x)],
                           [np.sum(weights * x), np.sum(weights * x * x)]])
-            beta = linalg.solve(A, b)
+            # Solve linear equation without scipy.linalg
+            beta = np.linalg.solve(A, b)
             yest[i] = beta[0] + beta[1] * x[i]
 
         residuals = y - yest
@@ -28,7 +28,6 @@ def lowess(x, y, f, iterations):
     return yest
 
 def plot_data(x, y, yest):
-    plt.figure()
     plt.plot(x, y, 'r.', label='Original Data')
     plt.plot(x, yest, 'b-', label='Lowess Regression')
     plt.xlabel('x')
