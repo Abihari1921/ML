@@ -10,7 +10,7 @@ class BayesianNetwork:
     def get_probability(self, node, evidence):
         table = self.probabilities[node]
         for condition, prob in table.items():
-            if all(evidence.get(var) == val for var, val in condition.items()):
+            if all(evidence.get(var) == val for var, val in condition):
                 return prob
         return 0
 
@@ -75,5 +75,6 @@ if st.button("Calculate P(C=True | evidence)"):
         st.write(f"P(C=True | A={A_val}) = {result:.4f}")
     else:
         st.write("Please set evidence for A.")
+
 
 
