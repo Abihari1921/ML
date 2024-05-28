@@ -1,6 +1,5 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 
 def lowess(x, y, f, iterations):
     n = len(x)
@@ -27,14 +26,6 @@ def lowess(x, y, f, iterations):
 
     return yest
 
-def plot_data(x, y, yest):
-    plt.plot(x, y, 'r.', label='Original Data')
-    plt.plot(x, yest, 'b-', label='Lowess Regression')
-    plt.xlabel('x')
-    plt.ylabel('y')
-    plt.legend()
-    st.pyplot(plt)
-
 def main():
     st.title('Locally Weighted Regression (Lowess)')
 
@@ -50,8 +41,11 @@ def main():
     # Perform lowess regression
     yest = lowess(x, y, f, iterations)
 
+    # Create a dictionary for original data and lowess regression
+    data = {'x': x, 'Original Data': y, 'Lowess Regression': yest}
+
     # Plot the original data and the lowess regression curve
-    plot_data(x, y, yest)
+    st.line_chart(data)
 
 if __name__ == '__main__':
     main()
