@@ -29,39 +29,23 @@ def kmeans(X, k, max_iters=100, tol=1e-4):
 # Streamlit UI
 st.title("K-means Clustering")
 
-st.write("### Upload your data")
-uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
-
+uploaded_file = st.file_uploader("Upload a CSV file", type="csv")
 if uploaded_file is not None:
     data = pd.read_csv(uploaded_file)
     st.write("### Data Preview")
     st.write(data.head())
-    
-    st.write("### Select Features for Clustering")
-    features = st.multiselect("Choose features", data.columns.tolist())
-    
+
+    features = st.multiselect("Choose features for clustering", data.columns.tolist())
     if features:
         X = data[features].values
+        k = st.slider("Select the number of clusters (k)", 1, 10, 3)
         
-        st.write("### Set Number of Clusters (k)")
-        k = st.slider("k", 1, 10, 3)
-        
-        st.write("### Run K-means Clustering")
-        if st.button("Run"):
+        if st.button("Run K-means"):
             centroids, labels = kmeans(X, k)
+            data['Cluster'] = labels
             
             st.write("### Clustered Data")
-            data['Cluster'] = labels
             st.write(data)
             
             st.write("### Centroids")
             st.write(centroids)
-            
-            st.write("### Cluster Plot")
-            fig = plt.figure(figsize=(10, 6))
-            ax = fig.add_subplot(111)
-            scatter = ax.scatter(X[:, 0], X[:, 1], c=labels, cmap='viridis')
-            ax.scatter(centroids[:, 0], centroids[:, 1], c='red', marker='x')
-            ax.set_xlabel(features[0])
-            ax.set_ylabel(features[1])
-            st.pyplot(fig)
