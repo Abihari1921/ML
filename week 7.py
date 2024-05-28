@@ -1,6 +1,6 @@
 import numpy as np
+import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
 
 def initialize_centroids(X, k):
     """ Randomly initialize k centroids from the data points. """
@@ -33,7 +33,6 @@ st.write("### Upload your data")
 uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
 if uploaded_file is not None:
-    import pandas as pd
     data = pd.read_csv(uploaded_file)
     st.write("### Data Preview")
     st.write(data.head())
@@ -59,10 +58,10 @@ if uploaded_file is not None:
             st.write(centroids)
             
             st.write("### Cluster Plot")
-            fig, ax = plt.subplots()
+            fig = plt.figure(figsize=(10, 6))
+            ax = fig.add_subplot(111)
             scatter = ax.scatter(X[:, 0], X[:, 1], c=labels, cmap='viridis')
             ax.scatter(centroids[:, 0], centroids[:, 1], c='red', marker='x')
             ax.set_xlabel(features[0])
             ax.set_ylabel(features[1])
-            ax.legend(*scatter.legend_elements(), title="Clusters")
             st.pyplot(fig)
